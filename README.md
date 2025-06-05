@@ -34,7 +34,9 @@ Prima di avviare i servizi, assicurati di avere:
 
 1. Un file `.env` nella root del progetto con la seguente variabile:
     ```
-    OPENAI_KEY=la_tua_openai_api_key
+    OPENAI_KEY=<your_openai_key>
+    DOMAIN=<your_domain>
+    EMAIL=<your_email>
     ```
 
 2. Una cartella `nginx` nella root, contenente le configurazioni nginx e i certificati TLS (se usi HTTPS).
@@ -61,7 +63,7 @@ Questo comando lancerà i seguenti contenitori:
 - Porta: gestita tramite nginx
 - Ambiente:
   - `OPENAI_API_KEY`: specificare la chiave API di OpenAI tramite variabile d'ambiente.
-  - `OLLAMA_BASE_URL`: URL di collegamento a Ollama.
+  - `OLLAMA_BASE_URL`: URL di collegamento a Ollama (ad esempio, se stai usando Ollama in locale, l'URL predefinita è http://localhost:11434 ).
 
 ### ollama
 
@@ -107,7 +109,8 @@ Questo comando lancerà i seguenti contenitori:
 Dopo qualche minuto, accedi a:
 
 https://webui.tuodominio.com
-Con HTTPS attivo e certificato valido 🔐
+Con HTTPS attivo e certificato valido 🔐<br>
+<strong>NOTA: Potrebbe essere necessario ricaricare più volte la pagina o cancellare la cache affinché funzioni.<strong>
 
 # 📦 Cosa fa lo script
 Installa Docker, Docker Compose, Nginx e Certbot
