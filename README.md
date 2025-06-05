@@ -1,6 +1,6 @@
 # 🚀 Open WebUI Setup Script (HTTPS + NGINX + Docker)
 
-Uno script completo per installare [Open WebUI](https://github.com/open-webui/open-webui) su una macchina Ubuntu (es. DigitalOcean), con:
+Guida per installare [Open WebUI](https://github.com/open-webui/open-webui) su una macchina Ubuntu (es. DigitalOcean), con:
 
 - ✅ Docker + Docker Compose  
 - 🌐 Nginx come reverse proxy  
@@ -40,6 +40,32 @@ Prima di avviare i servizi, assicurati di avere:
     ```
 
 2. Una cartella `nginx` nella root, contenente le configurazioni nginx e i certificati TLS (se usi HTTPS).
+
+# Nginx Configurazione: `webui.conf`
+
+Questo file configura Nginx come reverse proxy per open-webui, con HTTPS e reindirizzamento automatico da HTTP.
+
+### Cosa fa
+
+- Reindirizza tutto il traffico HTTP su HTTPS.
+- Gestisce certificati SSL da `/certs`.
+- Espone `.well-known/acme-challenge/` per Certbot.
+- Gira tutte le richieste HTTPS su `open-webui:8080`.
+- Applica impostazioni di sicurezza TLS moderne.
+
+### Come usarlo
+
+1. Sostituisci `<your_server_name>` con il tuo dominio.
+2. Assicurati che i certificati SSL siano in `/certs`.
+3. La cartella `/var/www/certbot` deve essere accessibile per Certbot.
+4. Includi questo file nella configurazione di Nginx.
+
+```
+http {
+    include /percorso/del/file/webui.conf;
+    ...
+}
+```
 
 ## Avvio dei servizi
 
