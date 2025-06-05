@@ -83,7 +83,7 @@ docker compose up -d
 
 | Servizio     | Porta | URL                    |
 |--------------|-------|------------------------|
-| Open WebUI   | 80    | http://localhost       |
+| Open WebUI   | 443   | https://localhost      |
 | Ollama API   | 11434 | http://localhost:11434 |
 
 ---
