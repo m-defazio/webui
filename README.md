@@ -32,7 +32,7 @@ Questo progetto utilizza **Docker Compose** per avviare un ambiente composto da 
 
 Prima di avviare i servizi, assicurati di avere:
 
-1. Un file `.env` nella root del progetto con la seguente variabile:
+1. Un file `.env` nella root del progetto con le seguenti variabili:
     ```
     OPENAI_KEY=<your_openai_key>
     DOMAIN=<your_domain>
@@ -41,7 +41,7 @@ Prima di avviare i servizi, assicurati di avere:
 
 2. Una cartella `nginx` nella root, contenente le configurazioni nginx e i certificati TLS (se usi HTTPS).
 
-# Nginx Configurazione: `webui.conf`
+## Nginx Configurazione: `webui.conf`
 
 Questo file configura Nginx come reverse proxy per open-webui, con HTTPS e reindirizzamento automatico da HTTP.
 
@@ -138,30 +138,4 @@ https://webui.tuodominio.com
 Con HTTPS attivo e certificato valido 🔐<br>
 <strong>NOTA: Potrebbe essere necessario ricaricare più volte la pagina o cancellare la cache affinché funzioni.<strong>
 
-# 📦 Cosa fa lo script
-Installa Docker, Docker Compose, Nginx e Certbot
 
-Avvia il container di Open WebUI
-
-Configura Nginx come reverse proxy sulla porta 443
-
-Ottiene il certificato HTTPS automatico con Let's Encrypt
-
-Crea una rete Docker dedicata
-
-# 📁 File e cartelle generate
-Percorso	Contenuto
-/etc/nginx/sites-available/webui	Config Nginx per il proxy
-/etc/letsencrypt/	Certificati HTTPS Let's Encrypt
-docker network ls	Rete webui-net per il container
-docker ps	Container open-webui attivo sulla porta 8080
-
-# 📌 Nota finale
-Puoi passare la chiave OpenAI anche da un file .env usando:
-
-
---env-file .env
-E assicurandoti che il file contenga:
-
-
-OPENAI_API_KEY=sk-xxxxx...
