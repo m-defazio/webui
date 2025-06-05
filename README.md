@@ -1,141 +1,124 @@
-# 🚀 Open WebUI Setup Script (HTTPS + NGINX + Docker)
+# 🧠 Open WebUI + Ollama + Nginx
 
-Guida per installare [Open WebUI](https://github.com/open-webui/open-webui) su una macchina Ubuntu (es. DigitalOcean), con:
+Un'infrastruttura completa per utilizzare [Open WebUI](https://github.com/open-webui/open-webui) con modelli LLM locali tramite [Ollama](https://ollama.com), con supporto per OpenAI API e Nginx come reverse proxy.
 
-- ✅ Docker + Docker Compose  
-- 🌐 Nginx come reverse proxy  
-- 🔒 HTTPS con Certbot (Let's Encrypt)  
-- 🔑 Chiave API OpenAI tramite `.env` o variabile  
-- 📦 Rete Docker dedicata  
+> ✅ Il container è preconfigurato per scaricare automaticamente il modello `deepseek-r1:1.5b`.
 
 ---
 
-## 📋 Requisiti
+## 🚀 Avvio rapido
 
-- Un server Ubuntu (consigliato: DigitalOcean, Hetzner, ecc.)
-- Un **dominio valido** (es. `webui.tuodominio.com`)
-- Il dominio deve puntare all'IP del server
-- Una chiave API OpenAI valida
-
----
-
-# Configurazione Docker Compose
-
-Questo progetto utilizza **Docker Compose** per avviare un ambiente composto da tre servizi principali: `open-webui`, `ollama` e `nginx`. Di seguito trovi le istruzioni per l'installazione e l'utilizzo.
-
-## Prerequisiti
-
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
-## Configurazione
-
-Prima di avviare i servizi, assicurati di avere:
-
-1. Un file `.env` nella root del progetto con le seguenti variabili:
-    ```
-    OPENAI_KEY=<your_openai_key>
-    DOMAIN=<your_domain>
-    EMAIL=<your_email>
-    ```
-
-2. Una cartella `nginx` nella root, contenente le configurazioni nginx e i certificati TLS (se usi HTTPS).
-
-## Nginx Configurazione: `webui.conf`
-
-Questo file configura Nginx come reverse proxy per open-webui, con HTTPS e reindirizzamento automatico da HTTP.
-
-### Cosa fa
-
-- Reindirizza tutto il traffico HTTP su HTTPS.
-- Gestisce certificati SSL da `/certs`.
-- Espone `.well-known/acme-challenge/` per Certbot.
-- Gira tutte le richieste HTTPS su `open-webui:8080`.
-- Applica impostazioni di sicurezza TLS moderne.
-
-### Come usarlo
-
-1. Sostituisci `<your_server_name>` con il tuo dominio.
-2. Assicurati che i certificati SSL siano in `/certs`.
-3. La cartella `/var/www/certbot` deve essere accessibile per Certbot.
-4. Includi questo file nella configurazione di Nginx.
-
-```
-http {
-    include /percorso/del/file/webui.conf;
-    ...
-}
-```
-
-## Avvio dei servizi
-
-Per avviare tutti i servizi, esegui:
+### Clona il repository:
 
 ```bash
-docker-compose up -d
+git clone https://github.com/m-defazio/webui.git
+cd webui
 ```
 
-Questo comando lancerà i seguenti contenitori:
+### Crea un file `.env` con la tua API Key di OpenAI (facoltativa):
 
-- **open-webui**: Interfaccia web che si collega a Ollama e OpenAI.
-- **ollama**: Backend per i modelli AI.
-- **nginx**: Proxy reverso per gestire le connessioni HTTP/HTTPS.
+```bash
+echo "OPENAI_KEY=sk-xxxxx..." > .env
+```
 
-## Dettagli dei Servizi
+### Avvia l'infrastruttura:
 
-### open-webui
+```bash
+docker compose up -d
+```
 
-- Immagine: `ghcr.io/open-webui/open-webui:main`
-- Porta: gestita tramite nginx
-- Ambiente:
-  - `OPENAI_API_KEY`: specificare la chiave API di OpenAI tramite variabile d'ambiente.
-  - `OLLAMA_BASE_URL`: URL di collegamento a Ollama (ad esempio, se stai usando Ollama in locale, l'URL predefinita è http://localhost:11434 ).
+### Accedi all’interfaccia Web:
 
-### ollama
+Apri il browser e vai su 👉 [http://localhost](http://localhost)
 
-- Immagine: `ollama/ollama:latest`
-- Salva i dati persistenti nel volume `ollama-data`.
+---
 
-### nginx
+## 🗂 Struttura del progetto
 
-- Immagine: `nginx:alpine`
-- Espone le porte `80` (HTTP) e `443` (HTTPS).
-- Usa la configurazione da `./nginx` e i certificati da `./nginx/certs`.
+```bash
+.
+├── docker-compose.yml      # Gestione dei container
+├── Dockerfile              # Estende l'immagine Ollama con entrypoint personalizzato
+├── entrypoint.sh           # Script per avvio Ollama e download modelli
+├── nginx/
+│   ├── default.conf        # Configurazione Nginx (personalizzabile)
+│   └── certs/              # Certificati TLS (opzionali)
+└── .env                    # File con la variabile OPENAI_KEY (non incluso nel repo)
+```
+---
 
-## Volumi
+## 🧠 Modello incluso
 
-- `open-webui-data`: Dati persistenti di open-webui.
-- `ollama-data`: Dati persistenti di ollama.
+Il sistema è preconfigurato per scaricare automaticamente:
 
-## Reti
+- `deepseek-r1:1.5b` – modello leggero e ottimizzato per l'esecuzione locale
 
-- `webui-net`: Rete Docker privata utilizzata dai servizi.
+Puoi modificare il modello cambiando la riga nel file `entrypoint.sh`.
 
-## Comandi Utili
+---
 
-- Avviare i servizi:
-  ```bash
-  docker-compose up -d
-  ```
-- Fermare i servizi:
-  ```bash
-  docker-compose down
-  ```
-- Visualizzare i log:
-  ```bash
-  docker-compose logs -f
-  ```
+## 🔧 Personalizzazioni
 
-## Note
+### ✏️ Cambiare il modello LLM
 
-- Assicurati che le porte 80 e 443 non siano occupate da altri servizi sulla tua macchina.
-- Modifica le configurazioni nginx se necessario per adattarle alle tue esigenze.
-- Per configurare HTTPS, posiziona i certificati nella cartella `./nginx/certs`.
-# ✅ Risultato finale
-Dopo qualche minuto, accedi a:
+Nel file `entrypoint.sh`, modifica questa riga:
 
-https://webui.tuodominio.com
-Con HTTPS attivo e certificato valido 🔐<br>
-<strong>NOTA: Potrebbe essere necessario ricaricare più volte la pagina o cancellare la cache affinché funzioni.<strong>
+```sh
+MODELS="deepseek-r1:1.5b"
+```
+Sostituiscila con qualsiasi modello disponibile su [https://ollama.com/library](https://ollama.com/library), ad esempio:
 
+```sh
+MODELS="llama2:7b"
+```
+Poi ricostruisci e riavvia:
 
+```bash
+docker compose build ollama
+docker compose up -d
+```
+---
+
+## 🌐 Accesso ai servizi
+
+| Servizio     | Porta | URL                    |
+|--------------|-------|------------------------|
+| Open WebUI   | 80    | http://localhost       |
+| Ollama API   | 11434 | http://localhost:11434 |
+
+---
+
+## 🔐 HTTPS (opzionale)
+
+Se vuoi abilitare HTTPS:
+
+1. Aggiungi i certificati `.crt` e `.key` nella cartella `nginx/certs`
+2. Modifica il file `nginx/default.conf` per gestire le richieste HTTPS
+
+---
+
+## 🛑 Stop & Pulizia
+
+### Ferma tutti i container:
+
+```bash
+docker compose down
+```
+### Elimina anche volumi e immagini:
+
+```bash
+docker compose down -v --rmi all
+```
+---
+
+## 📃 Licenza
+
+Distribuito sotto licenza **MIT**.
+
+---
+
+## 🙌 Crediti
+
+- [Open WebUI](https://github.com/open-webui/open-webui)
+- [Ollama](https://ollama.com)
+- [DeepSeek](https://huggingface.co/deepseek-ai)
