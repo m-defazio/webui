@@ -19,29 +19,90 @@ Uno script completo per installare [Open WebUI](https://github.com/open-webui/op
 
 ---
 
-## ⚙️ Configura lo script
+# Configurazione Docker Compose
 
-Modifica le prime variabili nello script `setup-webui.sh`:
+Questo progetto utilizza **Docker Compose** per avviare un ambiente composto da tre servizi principali: `open-webui`, `ollama` e `nginx`. Di seguito trovi le istruzioni per l'installazione e l'utilizzo.
 
+## Prerequisiti
 
-DOMAIN="webui.tuodominio.com"         # Cambia con il tuo dominio
-EMAIL="tu@email.com"                  # Email per Let's Encrypt
-OPENAI_KEY="la_tua_openai_api_key"    # Chiave segreta di OpenAI
-🧪 Esempio
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
+## Configurazione
 
-DOMAIN="webui.micheledefazio.me"
-EMAIL="lorenzo@gmail.com"
-OPENAI_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
-🛠️ Esecuzione
+Prima di avviare i servizi, assicurati di avere:
 
-Rendi eseguibile lo script:
+1. Un file `.env` nella root del progetto con la seguente variabile:
+    ```
+    OPENAI_KEY=la_tua_openai_api_key
+    ```
 
-chmod +x setup-webui.sh
-Lancialo come root o con sudo:
+2. Una cartella `nginx` nella root, contenente le configurazioni nginx e i certificati TLS (se usi HTTPS).
 
+## Avvio dei servizi
 
-sudo ./setup-webui.sh
+Per avviare tutti i servizi, esegui:
+
+```bash
+docker-compose up -d
+```
+
+Questo comando lancerà i seguenti contenitori:
+
+- **open-webui**: Interfaccia web che si collega a Ollama e OpenAI.
+- **ollama**: Backend per i modelli AI.
+- **nginx**: Proxy reverso per gestire le connessioni HTTP/HTTPS.
+
+## Dettagli dei Servizi
+
+### open-webui
+
+- Immagine: `ghcr.io/open-webui/open-webui:main`
+- Porta: gestita tramite nginx
+- Ambiente:
+  - `OPENAI_API_KEY`: specificare la chiave API di OpenAI tramite variabile d'ambiente.
+  - `OLLAMA_BASE_URL`: URL di collegamento a Ollama.
+
+### ollama
+
+- Immagine: `ollama/ollama:latest`
+- Salva i dati persistenti nel volume `ollama-data`.
+
+### nginx
+
+- Immagine: `nginx:alpine`
+- Espone le porte `80` (HTTP) e `443` (HTTPS).
+- Usa la configurazione da `./nginx` e i certificati da `./nginx/certs`.
+
+## Volumi
+
+- `open-webui-data`: Dati persistenti di open-webui.
+- `ollama-data`: Dati persistenti di ollama.
+
+## Reti
+
+- `webui-net`: Rete Docker privata utilizzata dai servizi.
+
+## Comandi Utili
+
+- Avviare i servizi:
+  ```bash
+  docker-compose up -d
+  ```
+- Fermare i servizi:
+  ```bash
+  docker-compose down
+  ```
+- Visualizzare i log:
+  ```bash
+  docker-compose logs -f
+  ```
+
+## Note
+
+- Assicurati che le porte 80 e 443 non siano occupate da altri servizi sulla tua macchina.
+- Modifica le configurazioni nginx se necessario per adattarle alle tue esigenze.
+- Per configurare HTTPS, posiziona i certificati nella cartella `./nginx/certs`.
 # ✅ Risultato finale
 Dopo qualche minuto, accedi a:
 
